@@ -1,0 +1,236 @@
+openapi: 3.0.0
+info:
+  title: Assembly Parts Inventory API
+  version: 1.0.0
+  description: API for managing assembly parts inventory
+
+paths:
+  /api/parts:
+    get:
+      summary: List all parts
+      tags:
+        - Parts
+      responses:
+        '200':
+          description: Parts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [SUCCESS]
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PartWithComponents'
+                  message:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      summary: Create a new part
+      tags:
+        - Parts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePartRequest'
+      responses:
+        '201':
+          description: Part created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/parts/{id}:
+    get:
+      summary: Get a part by ID
+      tags:
+        - Parts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Part retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [SUCCESS]
+                  data:
+                    $ref: '#/components/schemas/PartWithComponents'
+                  message:
+                    type: string
+        '404':
+          description: Part not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Update part inventory
+      tags:
+        - Parts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                  description: Quantity to add (positive) or remove (negative)
+              required:
+                - quantity
+      responses:
+        '200':
+          description: Inventory updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryResponse'
+        '404':
+          description: Part not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid request or insufficient quantity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CreatePartRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        type:
+          type: string
+          enum: [RAW, ASSEMBLED]
+        description:
+          type: string
+          maxLength: 500
+        parts:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              quantity:
+                type: integer
+                minimum: 1
+            required:
+              - id
+              - quantity
+      required:
+        - name
+        - type
+
+    PartWithComponents:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum: [RAW, ASSEMBLED]
+        description:
+          type: string
+        quantityInStock:
+          type: integer
+        parts:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              name:
+                type: string
+              quantity:
+                type: integer
+            required:
+              - id
+              - name
+              - quantity
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PartResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [SUCCESS]
+        data:
+          $ref: '#/components/schemas/PartWithComponents'
+        message:
+          type: string
+
+    InventoryResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [SUCCESS, FAILED]
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [FAILED]
+        message:
+          type: string 
