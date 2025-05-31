@@ -31,7 +31,7 @@ A TypeScript-based REST API for managing assembly parts inventory. This system a
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/nikhildabhi034/assembly_inventory.git
 cd assembly_inventory
 ```
 
@@ -53,12 +53,7 @@ DB_PASSWORD=your_password
 DB_DATABASE=assembly_inventory
 ```
 
-4. Run database migrations:
-```bash
-npm run typeorm migration:run
-```
-
-5. Start the development server:
+4. Start the development server:
 ```bash
 npm run dev
 ```
@@ -97,16 +92,6 @@ The API documentation is available via Swagger UI at `/api-docs` when the server
 ```
 
 ## Development
-
-### Running Tests
-```bash
-npm run test
-```
-
-### Linting
-```bash
-npm run lint
-```
 
 ### Building
 ```bash
